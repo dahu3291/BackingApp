@@ -3,4 +3,14 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="recipes_json_key">recipes</string>
+    <string name="next_step_button">Next Step</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="empty_forecast_list">No Recipes to display</string>
+    <string name="empty_recipe_list">No Recipe available</string>
+    <string name="measure_text">CUP</string>
+    <string name="quantity_text">2</string>
+    <string name="ingredient_text">Graham Cracker crumbs</string>
+    <string name="step_description_text">Step Description</string>
 </resources>

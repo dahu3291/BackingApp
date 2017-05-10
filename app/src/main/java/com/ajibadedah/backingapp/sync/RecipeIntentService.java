@@ -3,13 +3,23 @@ package com.ajibadedah.backingapp.sync;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.util.Log;
 
+import com.ajibadedah.backingapp.SettingPreferences;
+import com.ajibadedah.backingapp.model.Ingredient;
+import com.ajibadedah.backingapp.model.Recipe;
+import com.ajibadedah.backingapp.model.Step;
 import com.ajibadedah.backingapp.utility.NetworkUtils;
 import com.ajibadedah.backingapp.utility.RecipeJsonUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.List;
+
+import retrofit2.Call;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -79,15 +89,26 @@ public class RecipeIntentService extends IntentService {
      * parameters.
      */
     private void handleActionRecipeSync() {
-        String json;
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Recipe.class, new Recipe.RecipeTypeAdapter())
+                .registerTypeAdapter(Ingredient.class, new Ingredient.IngredientTypeAdapter())
+                .registerTypeAdapter(Step.class, new Step.StepTypeAdapter())
+                .create();
+
+        Call<List<Recipe>> recipesCall = NetworkUtils.getRecipeApi().getRecipes();
+        List<Recipe> recipes;
         try {
-            json = NetworkUtils.getResponseFromHttpUrl();
-            RecipeJsonUtils.getRecipe(this, json);
+            recipes = recipesCall.execute().body();
+            String json;
+            for (int i = 0; i < recipes.size(); i++){
+                json = gson.toJson(recipes.get(i));
+                SettingPreferences.setRecipeJson(this, json, String.valueOf(i));
+            }
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+
     }
 
     /**

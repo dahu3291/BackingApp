@@ -1,6 +1,13 @@
 package com.ajibadedah.backingapp.model;
 
-import java.net.URL;
+
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import java.lang.reflect.Type;
 
 /**
  * Created by ajibade on 5/4/17
@@ -9,10 +16,14 @@ import java.net.URL;
 public class Step {
     private String shortDescription;
     private String description;
-    private URL videoURL;
-    private URL thumbnailURL;
+    private String videoURL;
+    private String thumbnailURL;
 
-    public Step(String shortDescription, String description, URL videoURL, URL thumbnailURL) {
+    public Step() {
+        //empty constructor
+    }
+
+    public Step(String shortDescription, String description, String videoURL, String thumbnailURL) {
         this.shortDescription = shortDescription;
         this.description = description;
         this.videoURL = videoURL;
@@ -23,15 +34,46 @@ public class Step {
         return shortDescription;
     }
 
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
     public String getDescription() {
         return description;
     }
 
-    public URL getVideoURL() {
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getVideoURL() {
         return videoURL;
     }
 
-    public URL getThumbnailURL() {
+    public void setVideoURL(String videoURL) {
+        this.videoURL = videoURL;
+    }
+
+    public String getThumbnailURL() {
         return thumbnailURL;
+    }
+
+    public void setThumbnailURL(String thumbnailURL) {
+        this.thumbnailURL = thumbnailURL;
+    }
+
+    public static class StepTypeAdapter implements JsonDeserializer<Step> {
+
+        @Override
+        public Step deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            Step step = new Step();
+            JsonObject stepJson = json.getAsJsonObject();
+
+            step.setDescription(stepJson.get("description").getAsString());
+            step.setShortDescription(stepJson.get("shortDescription").getAsString());
+            step.setVideoURL(stepJson.get("videoURL").getAsString());
+            step.setThumbnailURL(stepJson.get("thumbnailURL").getAsString());
+            return step;
+        }
     }
 }

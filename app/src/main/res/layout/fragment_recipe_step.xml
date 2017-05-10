@@ -2,20 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ajibadedah.backingapp.RecipeListFragment">
+    tools:context="com.ajibadedah.backingapp.RecipeStepListFragment">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recipe_list_recycler"
+        android:id="@+id/step_list_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-    </android.support.v7.widget.RecyclerView>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/ingredient_list_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
 
     </android.support.v7.widget.RecyclerView>
 
