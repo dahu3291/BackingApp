@@ -13,4 +13,8 @@
     <string name="quantity_text">2</string>
     <string name="ingredient_text">Graham Cracker crumbs</string>
     <string name="step_description_text">Step Description</string>
+    <string name="recipe_step_picture_description">Recipe step picture</string>
+    <string name="empty_recipe">NO Recipe Avalaible</string>
+
+    <item name="layout1" type="id" />
 </resources>

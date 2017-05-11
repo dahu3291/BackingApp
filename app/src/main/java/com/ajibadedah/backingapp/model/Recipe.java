@@ -42,7 +42,7 @@ public class Recipe {
         return ingredients;
     }
 
-    public void setIngredients(ArrayList<Ingredient> ingredients) {
+    private void setIngredients(ArrayList<Ingredient> ingredients) {
         this.ingredients = ingredients;
     }
 
@@ -50,7 +50,7 @@ public class Recipe {
         return steps;
     }
 
-    public void setSteps(ArrayList<Step> steps) {
+    private void setSteps(ArrayList<Step> steps) {
         this.steps = steps;
     }
 

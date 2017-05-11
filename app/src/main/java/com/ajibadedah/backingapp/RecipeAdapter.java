@@ -128,7 +128,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             Recipe recipe = (Recipe) arrayList.get(position);
             String text = recipe.getName();
             recipeName.setText(text);
-            recipeName.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     listener.onRecipeClicked(position);
@@ -159,7 +159,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 Picasso.with(itemView.getContext()).load(step.getThumbnailURL()).into(recipeImage);
             }
             recipeName.setText(text);
-            recipeName.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     listener.onRecipeClicked(position);

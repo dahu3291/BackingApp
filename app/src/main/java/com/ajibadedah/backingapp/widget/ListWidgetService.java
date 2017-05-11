@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.ajibadedah.backingapp.IdlingResource.SimpleIdlingResource;
 import com.ajibadedah.backingapp.R;
 import com.ajibadedah.backingapp.model.Ingredient;
 import com.ajibadedah.backingapp.model.Recipe;
@@ -55,7 +56,7 @@ class ListRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 recipeList.addAll(recipes);
 //                recipeAdapter.notifyDataSetChanged();
             }
-        });
+        }, new SimpleIdlingResource());
 
         ingredientsList.clear();
         ingredientsList.addAll(recipeList.get(recipePosition).getIngredients());

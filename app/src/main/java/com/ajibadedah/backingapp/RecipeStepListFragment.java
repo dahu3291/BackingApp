@@ -1,7 +1,6 @@
 package com.ajibadedah.backingapp;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -67,14 +66,6 @@ public class RecipeStepListFragment extends Fragment implements RecipeAdapter.On
         return fragment;
     }
 
-//    public static RecipeStepListFragment newInstance(String json, boolean ) {
-//        RecipeStepListFragment fragment = new RecipeStepListFragment();
-//        Bundle args = new Bundle();
-//        args.putString(ARG_PARAM1, json);
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,11 +117,6 @@ public class RecipeStepListFragment extends Fragment implements RecipeAdapter.On
         return view;
     }
 
-    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -204,7 +190,7 @@ public class RecipeStepListFragment extends Fragment implements RecipeAdapter.On
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnStepClickedListener {
+    interface OnStepClickedListener {
         void onStepClicked(String json, int position);
     }
 }

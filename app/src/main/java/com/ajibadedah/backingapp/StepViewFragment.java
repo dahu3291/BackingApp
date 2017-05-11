@@ -3,10 +3,9 @@ package com.ajibadedah.backingapp;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaCodec;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -16,9 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.ajibadedah.backingapp.model.Recipe;
 import com.ajibadedah.backingapp.model.Step;
 import com.ajibadedah.backingapp.utility.RecipeJsonUtils;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -29,7 +26,6 @@ import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -38,11 +34,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
@@ -52,7 +44,6 @@ import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link StepViewFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link StepViewFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -71,11 +62,10 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     private String mParam1;
     private int currentPosition;
     private boolean mIsTwoPane;
-    private OnFragmentInteractionListener mListener;
+    private boolean hasInitializeMediaSession;
     private SimpleExoPlayer mExoPlayer;
     private SimpleExoPlayerView mPlayerView;
     private PlaybackStateCompat.Builder mStateBuilder;
-    private Handler mainHandler;
 
     public StepViewFragment() {
         // Required empty public constructor
@@ -123,7 +113,7 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
             nextButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    currentPosition = currentPosition + 1;
+                    currentPosition = currentPosition < steps.length - 1 ? currentPosition + 1 : 0;
                     descriptionTextView.setText(steps[currentPosition].getDescription());
 
                     releasePlayer();
@@ -146,7 +136,7 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
      * and media controller.
      */
     private void initializeMediaSession() {
-
+        hasInitializeMediaSession = true;
         // Create a MediaSessionCompat.
         mMediaSession = new MediaSessionCompat(getContext(), TAG);
 
@@ -182,34 +172,45 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
      * @param mediaUri The URI of the sample to play.
      */
     private void initializePlayer(Uri mediaUri) {
-        if (mExoPlayer == null) {
-            // Create an instance of the ExoPlayer.
+
+        if (!mediaUri.toString().equals("")) {
+            mPlayerView.setVisibility(View.VISIBLE);
+            if (!hasInitializeMediaSession) {
+                initializeMediaSession();
+            }
+            if (mExoPlayer == null) {
+                // Create an instance of the ExoPlayer.
 //            TrackSelector trackSelector = new DefaultTrackSelector();
-            LoadControl loadControl = new DefaultLoadControl();
-            TrackSelection.Factory videoTrackSelectionFactory =
-                    new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
-            TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
-            mPlayerView.setPlayer(mExoPlayer);
+                LoadControl loadControl = new DefaultLoadControl();
+                TrackSelection.Factory videoTrackSelectionFactory =
+                        new AdaptiveVideoTrackSelection.Factory(BANDWIDTH_METER);
+                TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+                mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
+                mPlayerView.setPlayer(mExoPlayer);
 
-            // Set the ExoPlayer.EventListener to this activity.
-            mExoPlayer.addListener(this);
+                // Set the ExoPlayer.EventListener to this activity.
+                mExoPlayer.addListener(this);
 
-            // Prepare the MediaSource.
-            String userAgent = Util.getUserAgent(getContext(), "BakingApp");
+                // Prepare the MediaSource.
+                String userAgent = Util.getUserAgent(getContext(), "BakingApp");
 //            MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
 //                    getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
 //            mExoPlayer.prepare(mediaSource);
 //            mExoPlayer.setPlayWhenReady(true);
 
-            mainHandler = new Handler();
-            DefaultDataSourceFactory df = new DefaultDataSourceFactory(getContext(), BANDWIDTH_METER,
-                    new DefaultHttpDataSourceFactory(userAgent, BANDWIDTH_METER));
-            MediaSource mediaSource = new ExtractorMediaSource(mediaUri, df
-                    , new DefaultExtractorsFactory(), null, null);
-            mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(true);
+                DefaultDataSourceFactory df = new DefaultDataSourceFactory(getContext(), BANDWIDTH_METER,
+                        new DefaultHttpDataSourceFactory(userAgent, BANDWIDTH_METER));
+                MediaSource mediaSource = new ExtractorMediaSource(mediaUri, df
+                        , new DefaultExtractorsFactory(), null, null);
+                mExoPlayer.prepare(mediaSource);
+                mExoPlayer.setPlayWhenReady(true);
 
+            }
+        } else {
+            if (mMediaSession != null) mMediaSession.setActive(false);
+            mMediaSession = null;
+            hasInitializeMediaSession = false;
+            mPlayerView.setVisibility(View.GONE);
         }
     }
 
@@ -254,54 +255,30 @@ public class StepViewFragment extends Fragment implements ExoPlayer.EventListene
     public void onPositionDiscontinuity() {
     }
 
-    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
         releasePlayer();
-        mMediaSession.setActive(false);
+        if (mMediaSession != null) mMediaSession.setActive(false);
     }
 
     /**
      * Release ExoPlayer.
      */
     private void releasePlayer() {
-        mExoPlayer.stop();
-        mExoPlayer.release();
-        mExoPlayer = null;
+        if (mExoPlayer != null) {
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 
     /**
      * Broadcast Receiver registered to receive the MEDIA_BUTTON intent coming from clients.

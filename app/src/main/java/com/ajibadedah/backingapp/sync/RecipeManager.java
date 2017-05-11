@@ -3,7 +3,9 @@ package com.ajibadedah.backingapp.sync;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 
+import com.ajibadedah.backingapp.IdlingResource.SimpleIdlingResource;
 import com.ajibadedah.backingapp.model.Ingredient;
 import com.ajibadedah.backingapp.model.Recipe;
 import com.ajibadedah.backingapp.model.Step;
@@ -27,13 +29,13 @@ public class RecipeManager {
 
     private static final String RECIPE_MANAGER = "recipeManager";
     private static final String RECIPES = "recipes";
-
     @SuppressLint("StaticFieldLeak")
     private static RecipeManager instance;
     private final Gson gson;
     private final Context appContext;
     private final List<Recipe> recipes;
     private final List<RecipeConsumer> recipeConsumers;
+    @Nullable  SimpleIdlingResource idlingResource;
     private final Callback<List<Recipe>> apiCallback = new Callback<List<Recipe>>() {
         @Override
         public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
@@ -45,6 +47,9 @@ public class RecipeManager {
 
             for (RecipeConsumer recipeConsumer : recipeConsumers) {
                 recipeConsumer.onRecipesAvailable(recipes);
+            }
+            if (idlingResource != null) {
+                idlingResource.setIdleState(true);
             }
             recipeConsumers.clear();
         }
@@ -81,9 +86,25 @@ public class RecipeManager {
         return instance;
     }
 
-    public void getRecipes(final RecipeConsumer recipeConsumer) {
+    public void getRecipes(final RecipeConsumer recipeConsumer, @Nullable final SimpleIdlingResource idlingRes) {
+        idlingResource = idlingRes;
+        /**
+         * The IdlingResource is null in production as set by the @Nullable annotation which means
+         * the value is allowed to be null.
+         *
+         * If the idle state is true, Espresso can perform the next action.
+         * If the idle state is false, Espresso will wait until it is true before
+         * performing the next action.
+         */
+        if (idlingResource != null) {
+            idlingResource.setIdleState(false);
+        }
+
         if (!recipes.isEmpty()) {
             recipeConsumer.onRecipesAvailable(recipes);
+            if (idlingResource != null) {
+                idlingResource.setIdleState(true);
+            }
             return;
         }
 

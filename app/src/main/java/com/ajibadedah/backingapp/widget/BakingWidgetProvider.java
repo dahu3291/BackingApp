@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.TaskStackBuilder;
 import android.widget.RemoteViews;
 
+import com.ajibadedah.backingapp.IdlingResource.SimpleIdlingResource;
 import com.ajibadedah.backingapp.MainActivity;
 import com.ajibadedah.backingapp.R;
 import com.ajibadedah.backingapp.model.Recipe;
@@ -55,7 +56,7 @@ public class BakingWidgetProvider extends AppWidgetProvider {
             public void onRecipesAvailable(List<Recipe> recipes) {
                 recipeList.addAll(recipes);
             }
-        });
+        }, new SimpleIdlingResource());
 
         views.setTextViewText(R.id.recipe_name, recipeList.get(position).getName());
 
